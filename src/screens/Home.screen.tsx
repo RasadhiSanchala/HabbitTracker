@@ -1,6 +1,10 @@
+import { Text, View } from "react-native";
+
 function Home() {
     return ( 
-        <div>Hi</div>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>This is Home!</Text>
+        </View>
      );
 }
 
