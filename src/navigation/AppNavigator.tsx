@@ -6,6 +6,7 @@ import SignIn from '../screens/auth/SignIn.screen';
 import SignUp from '../screens/auth/SignUp.screen';
 import { RootStackParamList } from '../types/navigation'; 
 
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
