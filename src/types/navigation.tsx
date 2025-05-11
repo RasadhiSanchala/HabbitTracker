@@ -5,5 +5,6 @@ export type RootStackParamList = {
     SignUp: undefined;
     Dashboard: undefined;
     AddHabbit: undefined;
+    SelectDays: undefined;
   };
   
