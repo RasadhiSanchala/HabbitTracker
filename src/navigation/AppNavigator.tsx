@@ -4,6 +4,8 @@ import LoadingScreen from '../screens/Loading.screen';
 import Home from '../screens/Home.screen';
 import SignIn from '../screens/auth/SignIn.screen';
 import SignUp from '../screens/auth/SignUp.screen';
+import Dashboard from '../screens/Dashboard.screen';
+import AddHabbit from '../screens/AddHabbit.screen';
 import { RootStackParamList } from '../types/navigation'; 
 
 
@@ -16,6 +18,8 @@ const AppNavigator = () => {
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="SignIn" component={SignIn} />
       <Stack.Screen name="SignUp" component={SignUp} />
+      <Stack.Screen name="Dashboard" component={Dashboard} />
+      <Stack.Screen name="AddHabbit" component={AddHabbit} />
     </Stack.Navigator>
   );
 };
