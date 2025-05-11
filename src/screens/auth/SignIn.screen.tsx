@@ -23,7 +23,7 @@ function SignIn() {
 
     if (isValid) {
       Alert.alert('Login successful!');
-      navigation.navigate('Home'); 
+      navigation.navigate('Dashboard'); 
     } else {
       Alert.alert('Invalid email or password.');
     }
