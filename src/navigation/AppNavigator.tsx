@@ -6,6 +6,7 @@ import SignIn from '../screens/auth/SignIn.screen';
 import SignUp from '../screens/auth/SignUp.screen';
 import Dashboard from '../screens/Dashboard.screen';
 import AddHabbit from '../screens/AddHabbit.screen';
+import SelectDays from '../screens/SelectDays.screen';
 import { RootStackParamList } from '../types/navigation'; 
 
 
@@ -20,6 +21,7 @@ const AppNavigator = () => {
       <Stack.Screen name="SignUp" component={SignUp} />
       <Stack.Screen name="Dashboard" component={Dashboard} />
       <Stack.Screen name="AddHabbit" component={AddHabbit} />
+      <Stack.Screen name="SelectDays" component={SelectDays} />
     </Stack.Navigator>
   );
 };
