@@ -51,7 +51,7 @@ export default function AddHabbit() {
   </TouchableOpacity>
 </View>
 
-{/* Show selected days as letter boxes */}
+
 {selectedDays.length > 0 && (
   <View style={styles.daysBoxContainer}>
     {selectedDays.map((day, index) => (

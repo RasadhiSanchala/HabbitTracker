@@ -39,7 +39,7 @@ export default function SelectDaysScreen() {
   };
 
   const handleSave = () => {
-    onSelectDays(selectedDays); // send selected days back to AddHabbit
+    onSelectDays(selectedDays); 
     navigation.goBack();
   };
 
