@@ -11,21 +11,21 @@ type AddHabitNavProp = NativeStackNavigationProp<RootStackParamList, 'AddHabbit'
 export default function AddHabbit() {
   const navigation = useNavigation<AddHabitNavProp>();
   const [habitName, setHabitName] = useState('');
-  const [selectedDays, setSelectedDays] = useState<string[]>([]); 
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
   const { addHabit } = useHabit();
 
-const handleSave = () => {
-  if (habitName.trim() === '') return;
+  const handleSave = () => {
+    if (habitName.trim() === '') return;
 
-  addHabit({
-    id: Date.now().toString(),
-    name: habitName,
-    days: selectedDays,
-  });
+    addHabit({
+      id: Date.now().toString(),
+      name: habitName,
+      days: selectedDays,
+    });
 
-  navigation.navigate('Dashboard');
-};
+    navigation.navigate('Dashboard');
+  };
 
 
   return (
@@ -38,12 +38,30 @@ const handleSave = () => {
         style={styles.input}
       />
 
-      <View style={styles.row}>
-        <Text style={styles.label}>Habit Days</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('SelectDays')}>
-          <Text style={styles.arrow}>➡️</Text>
-        </TouchableOpacity>
+  <View style={styles.row}>
+  <Text style={styles.label}>Habit Days</Text>
+  <TouchableOpacity
+    onPress={() =>
+      navigation.navigate('SelectDays', {
+        onSelectDays: (days) => setSelectedDays(days),
+      })
+    }
+  >
+    <Text style={styles.arrow}>➡️</Text>
+  </TouchableOpacity>
+</View>
+
+{/* Show selected days as letter boxes */}
+{selectedDays.length > 0 && (
+  <View style={styles.daysBoxContainer}>
+    {selectedDays.map((day, index) => (
+      <View key={index} style={styles.dayBox}>
+        <Text style={styles.dayBoxText}>{day.charAt(0)}</Text>
       </View>
+    ))}
+  </View>
+)}
+
 
       <Button title="Save Habit" onPress={handleSave} />
     </View>
@@ -61,5 +79,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     marginBottom: 20
   },
-  arrow: { fontSize: 20 }
+  arrow: { fontSize: 20 },
+  daysBoxContainer: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  gap: 8,
+  marginBottom: 20,
+},
+dayBox: {
+  width: 40,
+  height: 40,
+  borderRadius: 8,
+  backgroundColor: '#00bcd4',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+dayBoxText: {
+  color: 'white',
+  fontWeight: 'bold',
+  fontSize: 16,
+},
+
+
 });
