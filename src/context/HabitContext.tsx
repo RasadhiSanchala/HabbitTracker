@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { saveHabitsToStorage, getHabitsFromStorage } from '../utils/HabitStorage'; 
 
 type Habit = {
   id: string;
@@ -19,8 +20,20 @@ const HabitContext = createContext<HabitContextType>({
 export const HabitProvider = ({ children }: { children: React.ReactNode }) => {
   const [habits, setHabits] = useState<Habit[]>([]);
 
+ 
+  useEffect(() => {
+    const loadHabits = async () => {
+      const stored = await getHabitsFromStorage();
+      setHabits(stored);
+    };
+    loadHabits();
+  }, []);
+
+
   const addHabit = (habit: Habit) => {
-    setHabits((prev) => [...prev, habit]);
+    const updated = [...habits, habit];
+    setHabits(updated);
+    saveHabitsToStorage(updated);
   };
 
   return (
