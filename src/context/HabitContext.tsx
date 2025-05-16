@@ -1,5 +1,10 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { saveHabitsToStorage, getHabitsFromStorage, saveCompletedHabits, getCompletedHabits } from '../utils/HabitStorage';
+import {
+  saveHabitsToStorage,
+  getHabitsFromStorage,
+  saveCompletedHabits,
+  getCompletedHabits,
+} from '../utils/HabitStorage';
 
 type Habit = {
   id: string;
@@ -10,22 +15,29 @@ type Habit = {
 type HabitContextType = {
   habits: Habit[];
   addHabit: (habit: Habit) => void;
+  updateHabit: (updatedHabit: Habit) => void;
   completedHabits: string[];
   toggleHabitComplete: (id: string) => void;
-    deleteHabit: (id: string) => void; 
+  deleteHabit: (id: string) => void;
+  setEditingHabit: (habit: Habit | null) => void;
+  editingHabit: Habit | null;
 };
 
 const HabitContext = createContext<HabitContextType>({
   habits: [],
   addHabit: () => {},
+  updateHabit: () => {},
   completedHabits: [],
   toggleHabitComplete: () => {},
   deleteHabit: () => {},
+  setEditingHabit: () => {},
+  editingHabit: null,
 });
 
 export const HabitProvider = ({ children }: { children: React.ReactNode }) => {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [completedHabits, setCompletedHabits] = useState<string[]>([]);
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
 
   useEffect(() => {
     const loadHabitsAndCompleted = async () => {
@@ -43,6 +55,15 @@ export const HabitProvider = ({ children }: { children: React.ReactNode }) => {
     saveHabitsToStorage(updated);
   };
 
+  const updateHabit = (updatedHabit: Habit) => {
+    const updatedHabits = habits.map((habit) =>
+      habit.id === updatedHabit.id ? updatedHabit : habit
+    );
+    setHabits(updatedHabits);
+    saveHabitsToStorage(updatedHabits);
+    setEditingHabit(null); // clear after edit
+  };
+
   const toggleHabitComplete = (id: string) => {
     setCompletedHabits((prev) => {
       let updatedCompleted: string[];
@@ -57,19 +78,29 @@ export const HabitProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const deleteHabit = (id: string) => {
-  const updatedHabits = habits.filter(habit => habit.id !== id);
-  const updatedCompleted = completedHabits.filter(habitId => habitId !== id);
+    const updatedHabits = habits.filter((habit) => habit.id !== id);
+    const updatedCompleted = completedHabits.filter((habitId) => habitId !== id);
 
-  setHabits(updatedHabits);
-  setCompletedHabits(updatedCompleted);
+    setHabits(updatedHabits);
+    setCompletedHabits(updatedCompleted);
 
-  saveHabitsToStorage(updatedHabits);
-  saveCompletedHabits(updatedCompleted);
-};
-
+    saveHabitsToStorage(updatedHabits);
+    saveCompletedHabits(updatedCompleted);
+  };
 
   return (
-    <HabitContext.Provider value={{ habits, addHabit, completedHabits, toggleHabitComplete,deleteHabit }}>
+    <HabitContext.Provider
+      value={{
+        habits,
+        addHabit,
+        updateHabit,
+        completedHabits,
+        toggleHabitComplete,
+        deleteHabit,
+        setEditingHabit,
+        editingHabit,
+      }}
+    >
       {children}
     </HabitContext.Provider>
   );
