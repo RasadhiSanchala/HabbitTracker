@@ -12,6 +12,7 @@ type HabitContextType = {
   addHabit: (habit: Habit) => void;
   completedHabits: string[];
   toggleHabitComplete: (id: string) => void;
+    deleteHabit: (id: string) => void; 
 };
 
 const HabitContext = createContext<HabitContextType>({
@@ -19,6 +20,7 @@ const HabitContext = createContext<HabitContextType>({
   addHabit: () => {},
   completedHabits: [],
   toggleHabitComplete: () => {},
+  deleteHabit: () => {},
 });
 
 export const HabitProvider = ({ children }: { children: React.ReactNode }) => {
@@ -54,8 +56,20 @@ export const HabitProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
+  const deleteHabit = (id: string) => {
+  const updatedHabits = habits.filter(habit => habit.id !== id);
+  const updatedCompleted = completedHabits.filter(habitId => habitId !== id);
+
+  setHabits(updatedHabits);
+  setCompletedHabits(updatedCompleted);
+
+  saveHabitsToStorage(updatedHabits);
+  saveCompletedHabits(updatedCompleted);
+};
+
+
   return (
-    <HabitContext.Provider value={{ habits, addHabit, completedHabits, toggleHabitComplete }}>
+    <HabitContext.Provider value={{ habits, addHabit, completedHabits, toggleHabitComplete,deleteHabit }}>
       {children}
     </HabitContext.Provider>
   );
