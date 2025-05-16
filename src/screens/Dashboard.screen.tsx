@@ -1,5 +1,5 @@
-import React from 'react';
-import { Text, View, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
@@ -9,28 +9,59 @@ type DashboardNavProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard
 
 export default function Dashboard() {
   const navigation = useNavigation<DashboardNavProp>();
-  const { habits, completedHabits, toggleHabitComplete } = useHabit();
+  const { habits, completedHabits, toggleHabitComplete, deleteHabit } = useHabit();
+  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
 
   return (
     <View style={styles.container}>
       <FlatList
-  data={habits}
-  keyExtractor={(item) => item.id}
-  extraData={completedHabits} 
-  renderItem={({ item }) => {
-    const isCompleted = completedHabits.includes(item.id);
-    return (
-      <View style={[styles.habitBox, isCompleted && styles.habitBoxCompleted]}>
-        <TouchableOpacity
-          style={[styles.circle, isCompleted && styles.circleFilled]}
-          onPress={() => toggleHabitComplete(item.id)}
-        />
-        <Text>{item.name}</Text>
-        <Text>Days: {item.days.join(', ')}</Text>
-      </View>
-    );
-  }}
-/>
+        data={habits}
+        keyExtractor={(item) => item.id}
+        extraData={[completedHabits, selectedHabitId]}
+        renderItem={({ item }) => {
+          const isCompleted = completedHabits.includes(item.id);
+          const isSelected = selectedHabitId === item.id;
+
+          return (
+            <TouchableOpacity
+              onPress={() =>
+                setSelectedHabitId((prev) => (prev === item.id ? null : item.id))
+              }
+            >
+              <View style={[styles.habitBox, isCompleted && styles.habitBoxCompleted]}>
+                <TouchableOpacity
+                  style={[styles.circle, isCompleted && styles.circleFilled]}
+                  onPress={() => toggleHabitComplete(item.id)}
+                />
+                <Text>{item.name}</Text>
+                <Text>Days: {item.days.join(', ')}</Text>
+
+                {isSelected && (
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() =>
+                      Alert.alert(
+                        'Delete Habit',
+                        'Are you sure you want to delete this habit?',
+                        [
+                          { text: 'Cancel', style: 'cancel' },
+                          {
+                            text: 'Delete',
+                            style: 'destructive',
+                            onPress: () => deleteHabit(item.id),
+                          },
+                        ]
+                      )
+                    }
+                  >
+                    <Text style={styles.deleteButtonText}>Delete</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </TouchableOpacity>
+          );
+        }}
+      />
 
       <TouchableOpacity
         style={styles.plusButton}
@@ -77,4 +108,15 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   plusButtonText: { color: '#fff', fontSize: 24 },
+  deleteButton: {
+    marginTop: 10,
+    backgroundColor: '#e57373',
+    padding: 8,
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
 });
