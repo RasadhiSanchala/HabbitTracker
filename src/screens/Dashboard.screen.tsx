@@ -9,7 +9,7 @@ type DashboardNavProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard
 
 export default function Dashboard() {
   const navigation = useNavigation<DashboardNavProp>();
-  const { habits, completedHabits, toggleHabitComplete, deleteHabit } = useHabit();
+  const { habits, completedHabits, toggleHabitComplete, deleteHabit, setEditingHabit } = useHabit();
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
 
   return (
@@ -37,25 +37,50 @@ export default function Dashboard() {
                 <Text>Days: {item.days.join(', ')}</Text>
 
                 {isSelected && (
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() =>
-                      Alert.alert(
-                        'Delete Habit',
-                        'Are you sure you want to delete this habit?',
-                        [
-                          { text: 'Cancel', style: 'cancel' },
-                          {
-                            text: 'Delete',
-                            style: 'destructive',
-                            onPress: () => deleteHabit(item.id),
-                          },
-                        ]
-                      )
-                    }
-                  >
-                    <Text style={styles.deleteButtonText}>Delete</Text>
-                  </TouchableOpacity>
+                  <View style={styles.actionButtons}>
+                    <TouchableOpacity
+                      style={styles.editButton}
+                      onPress={() =>
+                        Alert.alert(
+                          'Edit Habit',
+                          'Do you want to edit this habit?',
+                          [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                              text: 'OK',
+                              onPress: () => {
+                                setEditingHabit(item);
+                                navigation.navigate('AddHabbit');
+                              },
+                            },
+                          ],
+                          { cancelable: true }
+                        )
+                      }
+                    >
+                      <Text style={styles.deleteButtonText}>Edit</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() =>
+                        Alert.alert(
+                          'Delete Habit',
+                          'Are you sure you want to delete this habit?',
+                          [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                              text: 'Delete',
+                              style: 'destructive',
+                              onPress: () => deleteHabit(item.id),
+                            },
+                          ]
+                        )
+                      }
+                    >
+                      <Text style={styles.deleteButtonText}>Delete</Text>
+                    </TouchableOpacity>
+                  </View>
                 )}
               </View>
             </TouchableOpacity>
@@ -63,12 +88,7 @@ export default function Dashboard() {
         }}
       />
 
-      <TouchableOpacity
-        style={styles.plusButton}
-        onPress={() => navigation.navigate('AddHabbit')}
-      >
-        <Text style={styles.plusButtonText}>+</Text>
-      </TouchableOpacity>
+      {/* Removed the extra Edit button here since `item` is undefined */}
     </View>
   );
 }
@@ -118,5 +138,15 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    marginTop: 10,
+    gap: 10,
+  },
+  editButton: {
+    backgroundColor: '#4caf50',
+    padding: 6,
+    borderRadius: 6,
   },
 });
