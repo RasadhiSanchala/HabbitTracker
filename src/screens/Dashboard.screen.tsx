@@ -11,13 +11,35 @@ export default function Dashboard() {
   const navigation = useNavigation<DashboardNavProp>();
   const { habits, completedHabits, toggleHabitComplete, deleteHabit, setEditingHabit } = useHabit();
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'All' | 'Pending' | 'Completed'>('All');
+
+  const filteredHabits = habits.filter((habit) => {
+    if (activeTab === 'Completed') return completedHabits.includes(habit.id);
+    if (activeTab === 'Pending') return !completedHabits.includes(habit.id);
+    return true;
+  });
 
   return (
     <View style={styles.container}>
+
+      <View style={styles.tabContainer}>
+        {['All', 'Pending', 'Completed'].map((tab) => (
+          <TouchableOpacity
+            key={tab}
+            style={[styles.tabButton, activeTab === tab && styles.activeTabButton]}
+            onPress={() => setActiveTab(tab as 'All' | 'Pending' | 'Completed')}
+          >
+            <Text style={activeTab === tab ? styles.activeTabText : styles.tabText}>
+              {tab}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <FlatList
-        data={habits}
+        data={filteredHabits}
         keyExtractor={(item) => item.id}
-        extraData={[completedHabits, selectedHabitId]}
+        extraData={[completedHabits, selectedHabitId, activeTab]}
         renderItem={({ item }) => {
           const isCompleted = completedHabits.includes(item.id);
           const isSelected = selectedHabitId === item.id;
@@ -87,14 +109,36 @@ export default function Dashboard() {
           );
         }}
       />
-
-      {/* Removed the extra Edit button here since `item` is undefined */}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
+
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 15,
+  },
+  tabButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    backgroundColor: '#cfd8dc',
+  },
+  activeTabButton: {
+    backgroundColor: '#00796b',
+  },
+  tabText: {
+    color: '#333',
+    fontWeight: 'bold',
+  },
+  activeTabText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+
   habitBox: {
     backgroundColor: '#e0f7fa',
     padding: 16,
@@ -119,15 +163,6 @@ const styles = StyleSheet.create({
   circleFilled: {
     backgroundColor: '#00796b',
   },
-  plusButton: {
-    backgroundColor: '#00bcd4',
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    padding: 16,
-    borderRadius: 50,
-  },
-  plusButtonText: { color: '#fff', fontSize: 24 },
   deleteButton: {
     marginTop: 10,
     backgroundColor: '#e57373',
