@@ -13,6 +13,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useHabit } from '../context/HabitContext';
 import moment from 'moment';
+import Last7DaysSelector from '../components/Last7Days';
+
 
 type DashboardNavProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
 
@@ -22,6 +24,7 @@ export default function Dashboard() {
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState<'All' | 'Pending' | 'Completed'>('All');
   const [selectedDate, setSelectedDate] = useState(moment().format('dddd'));
+
 
 
   const last7Days = Array.from({ length: 7 }, (_, i) =>
@@ -39,22 +42,14 @@ export default function Dashboard() {
 
   return (
     <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dateScroll}>
-        {last7Days.map((day) => (
-          <TouchableOpacity
-            key={day}
-            style={[
-              styles.dateCircle,
-              selectedDate === day && styles.dateCircleSelected,
-            ]}
-            onPress={() => setSelectedDate(day)}
-          >
-            <Text style={styles.dateText}>{day.substring(0, 3)}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+
+      <Last7DaysSelector
+        selectedDate={selectedDate}
+        onDateSelect={(day) => setSelectedDate(day)}
+      />
 
 
+   
       <View style={styles.tabContainer}>
         {['All', 'Pending', 'Completed'].map((tab) => (
           <TouchableOpacity
@@ -70,6 +65,7 @@ export default function Dashboard() {
         ))}
       </View>
 
+      {/* Habit List */}
       <FlatList
         data={filteredHabits}
         keyExtractor={(item) => item.id}
