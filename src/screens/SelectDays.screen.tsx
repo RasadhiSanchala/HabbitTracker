@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Button } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
+import BottomNavBar from '../components/BottomNavBar';
 
 const daysOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const fullDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -43,7 +44,16 @@ export default function SelectDaysScreen() {
     navigation.goBack();
   };
 
+  const handleHome = () => navigation.navigate('Home');
+  const handleDashboard = () => navigation.navigate('Dashboard');
+  const handleAdd = () => navigation.navigate('AddHabbit');
+  const handleProgress = () => navigation.navigate('Home');
+  const handleLogout = () => {
+    navigation.navigate('Home'); 
+  };
+
   return (
+    <View style={{ flex: 1 }}>
     <View style={styles.container}>
       <Text style={styles.heading}>Select Days</Text>
 
@@ -81,6 +91,14 @@ export default function SelectDaysScreen() {
       )}
 
       <Button title="Save" onPress={handleSave} />
+    </View>
+      <BottomNavBar
+        onHome={handleHome}
+        onDashboard={handleDashboard}
+        onAdd={handleAdd}
+        onProgress={handleProgress}
+        onLogout={handleLogout}
+      />
     </View>
   );
 }
