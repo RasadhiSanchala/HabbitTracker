@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useHabit } from '../context/HabitContext';
+import BottomNavBar from '../components/BottomNavBar';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
 
@@ -64,6 +65,15 @@ const Dashboard = () => {
   const [calendarMonth, setCalendarMonth] = useState(() => new Date().getMonth());
   const [calendarYear, setCalendarYear] = useState(() => new Date().getFullYear());
 
+  
+  const handleHome = () => navigation.navigate('Home');
+  const handleDashboard = () => navigation.navigate('Dashboard');
+  const handleAdd = () => navigation.navigate('AddHabbit');
+  const handleProgress = () => navigation.navigate('Home');
+  const handleLogout = () => {
+    navigation.navigate('Home'); 
+  };
+
   const generateCalendarDays = () => {
     const firstDay = new Date(calendarYear, calendarMonth, 1);
     const lastDay = new Date(calendarYear, calendarMonth + 1, 0);
@@ -105,6 +115,7 @@ const Dashboard = () => {
   };
 
   const monthName = new Date(calendarYear, calendarMonth).toLocaleDateString('en-US', { month: 'long' });
+  
 
   return (
     <View style={styles.container}>
@@ -223,15 +234,13 @@ const Dashboard = () => {
           );
         }}
       />
-      <View style={styles.addButtonContainer}>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => navigation.navigate('AddHabbit')}
-        >
-          <Text style={styles.addButtonText}>+ Add Habit</Text>
-        </TouchableOpacity>
-      </View>
-
+      <BottomNavBar
+        onHome={handleHome}
+        onDashboard={handleDashboard}
+        onAdd={handleAdd}
+        onProgress={handleProgress}
+        onLogout={handleLogout}
+      />
     </View>
 
   );
@@ -362,13 +371,42 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     marginTop: 8,
   },
-  editButton: {
-    marginRight: 10,
-  },
-  deleteButton: {},
-  actionText: {
-    color: '#007BFF',
-  },
+editButton: {
+  marginRight: 10,
+  borderColor: '#e0d2c1',
+  borderWidth: 2,
+  padding: 5,
+  borderRadius: 4,
+  backgroundColor: 'white',
+  color: '#e0d2c1',
+  width: 80,
+  height: 35,
+  textAlign: 'center',
+  justifyContent: 'center',
+  alignItems: 'center',
+  display: 'flex',
+},
+
+deleteButton: {
+  borderColor: '#e0d2c1',
+  borderWidth: 2,
+  padding: 5,
+  borderRadius: 4,
+  backgroundColor: 'white',
+  color: '#e0d2c1',
+  width: 80,
+  height: 35,
+  textAlign: 'center',
+  justifyContent: 'center',
+  alignItems: 'center',
+  display: 'flex',
+},
+
+
+actionText: {
+  color: '#007BFF',
+}
+,
   addButtonContainer: {
     position: 'absolute',
     bottom: 20,
