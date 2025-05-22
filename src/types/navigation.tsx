@@ -8,4 +8,5 @@ export type RootStackParamList = {
   SelectDays: {
     onSelectDays: (days: string[]) => void;
   };
+    Analytics: undefined;
 };
