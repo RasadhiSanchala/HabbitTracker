@@ -37,17 +37,6 @@ const Dashboard = () => {
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   const [filteredHabits, setFilteredHabits] = useState(habits);
 
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - i));
-    const dayInitial = date.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0);
-    const dayNumber = date.getDate();
-    return {
-      isoDate: date.toISOString().split('T')[0],
-      label: `${dayInitial} ${dayNumber}`,
-    };
-  });
-
   const filterHabits = () => {
     const dayOfWeek = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
     const habitsForDate = habits.filter(habit => habit.days.includes(dayOfWeek));
@@ -119,18 +108,6 @@ const Dashboard = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={{ flexGrow: 0 }} horizontal showsHorizontalScrollIndicator={false}>
-        {last7Days.map(({ isoDate, label }) => (
-          <TouchableOpacity
-            key={isoDate}
-            style={[styles.dateCircle, selectedDate === isoDate && styles.dateCircleSelected]}
-            onPress={() => setSelectedDate(isoDate)}
-          >
-            <Text style={styles.dateText}>{label}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
       <View style={styles.calendarContainer}>
         <View style={styles.calendarHeader}>
           <TouchableOpacity onPress={prevMonth} style={styles.navButton}>
@@ -266,22 +243,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#f9f6f3',
   },
-  dateCircle: {
-    marginTop:30,
-    marginHorizontal: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    backgroundColor: '#e0d2c1',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dateCircleSelected: {
-    backgroundColor: '#c2a77c',
-  },
-  dateText: {
-    color: '#333',
-  },
+
   calendarContainer: {
     borderWidth: 1,
     marginTop: 50,
@@ -417,7 +379,7 @@ const styles = StyleSheet.create({
   },
 
   addButton: {
-    backgroundColor: '#f5c58b', // your theme color
+    backgroundColor: '#f5c58b', 
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 25,
