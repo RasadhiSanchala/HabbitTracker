@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import { View, Text, TextInput, Button, Alert, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { storeUser, getUser } from '../../utils/Authstorage';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -43,25 +43,123 @@ function SignUp() {
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text>Name:</Text>
-      <TextInput style={{ borderWidth: 1, marginBottom: 10 }} onChangeText={setName} />
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <View style={styles.box}>
+        <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.subtitle}>Please fill in the details below</Text>
 
-      <Text>Email:</Text>
-      <TextInput style={{ borderWidth: 1, marginBottom: 10 }} onChangeText={setEmail} keyboardType="email-address" />
+        <Text style={styles.label}>Name</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={setName}
+          placeholder="Enter your full name"
+          placeholderTextColor="#999"
+          autoCapitalize="words"
+          textContentType="name"
+        />
 
-      <Text>Gender:</Text>
-      <TextInput style={{ borderWidth: 1, marginBottom: 10 }} onChangeText={setGender} />
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          placeholder="Enter your email"
+          placeholderTextColor="#999"
+          autoCapitalize="none"
+          autoComplete="email"
+          textContentType="emailAddress"
+        />
 
-      <Text>Age:</Text>
-      <TextInput style={{ borderWidth: 1, marginBottom: 10 }} onChangeText={setAge} keyboardType="numeric" />
+        <Text style={styles.label}>Gender</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={setGender}
+          placeholder="Enter your gender"
+          placeholderTextColor="#999"
+          autoCapitalize="words"
+        />
 
-      <Text>Password:</Text>
-      <TextInput style={{ borderWidth: 1, marginBottom: 10 }} secureTextEntry onChangeText={setPassword} />
+        <Text style={styles.label}>Age</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={setAge}
+          keyboardType="numeric"
+          placeholder="Enter your age"
+          placeholderTextColor="#999"
+        />
 
-      <Button title="Sign Up" onPress={handleSignUp} />
-    </View>
+        <Text style={styles.label}>Password</Text>
+        <TextInput
+          style={styles.input}
+          secureTextEntry
+          onChangeText={setPassword}
+          placeholder="Create a password"
+          placeholderTextColor="#999"
+          autoCapitalize="none"
+          textContentType="password"
+        />
+
+        <View style={styles.buttonContainer}>
+          <Button title="Sign Up" onPress={handleSignUp} color="#6F2E0E" />
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F6E8DC',
+    justifyContent: 'center',
+    paddingHorizontal: 30,
+  },
+  box: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 25,
+    shadowColor: '#6F2E0E',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#6F2E0E',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#6F2E0E',
+    marginBottom: 20,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  label: {
+    fontWeight: '600',
+    color: '#6F2E0E',
+    marginBottom: 6,
+    fontSize: 14,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#6F2E0E',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginBottom: 18,
+    fontSize: 16,
+    color: '#333',
+  },
+  buttonContainer: {
+    marginTop: 10,
+  },
+});
 
 export default SignUp;
