@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 
 import { useHabit } from '../context/HabitContext';
+import BottomNavBar from '../components/BottomNavBar';
 
 type AddHabitNavProp = NativeStackNavigationProp<RootStackParamList, 'AddHabbit'>;
 
@@ -14,6 +15,14 @@ export default function AddHabbit() {
 
   const [habitName, setHabitName] = useState('');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+
+  const handleHome = () => navigation.navigate('Home');
+  const handleDashboard = () => navigation.navigate('Dashboard');
+  const handleAdd = () => navigation.navigate('AddHabbit');
+  const handleProgress = () => navigation.navigate('Home');
+  const handleLogout = () => {
+    navigation.navigate('Home'); 
+  };
 
   useEffect(() => {
     if (editingHabit) {
@@ -47,6 +56,7 @@ export default function AddHabbit() {
   };
 
   return (
+    <View style={{ flex: 1 }}>
     <View style={styles.container}>
       <Text style={styles.label}>Habit Name</Text>
       <TextInput
@@ -81,11 +91,19 @@ export default function AddHabbit() {
 
       <Button title={editingHabit ? "Update Habit" : "Save Habit"} onPress={handleSave} />
     </View>
+       <BottomNavBar
+        onHome={handleHome}
+        onDashboard={handleDashboard}
+        onAdd={handleAdd}
+        onProgress={handleProgress}
+        onLogout={handleLogout}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
+  container: { padding: 20 ,flex: 1},
   label: { fontSize: 16, marginBottom: 8 },
   input: {
     borderWidth: 1,
