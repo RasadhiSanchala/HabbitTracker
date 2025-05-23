@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   FlatList,
   TouchableOpacity,
-  ScrollView,
   StyleSheet,
-  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useHabit } from '../context/HabitContext';
 import BottomNavBar from '../components/BottomNavBar';
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
 
@@ -24,7 +23,6 @@ const Dashboard = () => {
     completedHabits,
     toggleHabitComplete,
     deleteHabit,
-    setEditingHabit,
   } = useHabit();
 
   const navigation = useNavigation<NavigationProp>();
@@ -37,6 +35,11 @@ const Dashboard = () => {
   const [selectedTab, setSelectedTab] = useState<'All' | 'Pending' | 'Completed'>('All');
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   const [filteredHabits, setFilteredHabits] = useState(habits);
+
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date().getMonth());
+  const [calendarYear, setCalendarYear] = useState(() => new Date().getFullYear());
+
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const filterHabits = () => {
     const dayOfWeek = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
@@ -58,20 +61,31 @@ const Dashboard = () => {
   }, [habits, completedHabits, selectedDate, selectedTab]);
 
   const handleCirclePress = (habitId: string) => {
+    const isAlreadyCompleted = completedHabits[selectedDate]?.includes(habitId) ?? false;
     toggleHabitComplete(habitId, selectedDate);
-    filterHabits();
+
+    if (!isAlreadyCompleted) {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 2000);
+    }
   };
 
-  const [calendarMonth, setCalendarMonth] = useState(() => new Date().getMonth());
-  const [calendarYear, setCalendarYear] = useState(() => new Date().getFullYear());
+  const prevMonth = () => {
+    if (calendarMonth === 0) {
+      setCalendarMonth(11);
+      setCalendarYear(y => y - 1);
+    } else {
+      setCalendarMonth(m => m - 1);
+    }
+  };
 
-  
-  const handleHome = () => navigation.navigate('Home');
-  const handleDashboard = () => navigation.navigate('Dashboard');
-  const handleAdd = () => navigation.navigate('AddHabbit');
-  const handleProgress = () => navigation.navigate('AnalyticsScreen');
-  const handleLogout = () => {
-    navigation.navigate('Home'); 
+  const nextMonth = () => {
+    if (calendarMonth === 11) {
+      setCalendarMonth(0);
+      setCalendarYear(y => y + 1);
+    } else {
+      setCalendarMonth(m => m + 1);
+    }
   };
 
   const generateCalendarDays = () => {
@@ -86,27 +100,11 @@ const Dashboard = () => {
     return daysArray;
   };
 
-  const prevMonth = () => {
-    if (calendarMonth === 0) {
-      setCalendarMonth(11);
-      setCalendarYear(y => y - 1);
-    } else setCalendarMonth(m => m - 1);
-  };
-
-  const nextMonth = () => {
-    if (calendarMonth === 11) {
-      setCalendarMonth(0);
-      setCalendarYear(y => y + 1);
-    } else setCalendarMonth(m => m + 1);
-  };
-
   const onCalendarDayPress = (day: number) => {
     const mm = (calendarMonth + 1).toString().padStart(2, '0');
     const dd = day.toString().padStart(2, '0');
     setSelectedDate(`${calendarYear}-${mm}-${dd}`);
   };
-
-  const calendarDays = generateCalendarDays();
 
   const isSelectedCalendarDay = (day: number) => {
     const mm = (calendarMonth + 1).toString().padStart(2, '0');
@@ -114,11 +112,27 @@ const Dashboard = () => {
     return `${calendarYear}-${mm}-${dd}` === selectedDate;
   };
 
-  const monthName = new Date(calendarYear, calendarMonth).toLocaleDateString('en-US', { month: 'long' });
-  
+  const monthName = new Date(0, calendarMonth).toLocaleDateString('en-US', { month: 'long' });
 
   return (
     <View style={styles.container}>
+      {/* Professional Dashboard Heading */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Dashboard</Text>
+      </View>
+
+      {/* Confetti Animation */}
+      {showConfetti && (
+        <ConfettiCannon
+          count={80}
+          origin={{ x: 180, y: 0 }}
+          autoStart={true}
+          fadeOut={true}
+          fallSpeed={3000}
+        />
+      )}
+
+      {/* Calendar */}
       <View style={styles.calendarContainer}>
         <View style={styles.calendarHeader}>
           <TouchableOpacity onPress={prevMonth} style={styles.navButton}>
@@ -131,36 +145,34 @@ const Dashboard = () => {
         </View>
 
         <View style={styles.weekdayRow}>
-          {WEEKDAYS.map(day => (
-            <Text key={day} style={styles.weekdayText}>{day}</Text>
+          {WEEKDAYS.map((day, idx) => (
+            <Text key={idx} style={styles.weekdayText}>{day}</Text>
           ))}
         </View>
 
         <View style={styles.daysGrid}>
-          {calendarDays.map((day, i) => (
+          {generateCalendarDays().map((day, i) =>
             day ? (
               <TouchableOpacity
-                key={i}
+                key={`day-${i}`}
                 style={[styles.dayCell, isSelectedCalendarDay(day) && styles.daySelected]}
                 onPress={() => onCalendarDayPress(day)}
               >
-                <Text style={[styles.dayText, isSelectedCalendarDay(day) && styles.dayTextSelected]}>
-                  {day}
-                </Text>
+                <Text style={[styles.dayText, isSelectedCalendarDay(day) && styles.dayTextSelected]}>{day}</Text>
               </TouchableOpacity>
             ) : (
-              <View key={i} style={styles.dayCell} />
+              <View key={`empty-${i}`} style={styles.dayCell} />
             )
-          ))}
+          )}
         </View>
       </View>
 
       <View style={styles.tabContainer}>
-        {['All', 'Pending', 'Completed'].map(tab => (
+        {['All', 'Pending', 'Completed'].map((tab, idx) => (
           <TouchableOpacity
             key={tab}
             style={[styles.tab, selectedTab === tab && styles.tabSelected]}
-            onPress={() => setSelectedTab(tab as 'All' | 'Pending' | 'Completed')}
+            onPress={() => setSelectedTab(tab as typeof selectedTab)}
           >
             <Text style={styles.tabText}>{tab}</Text>
           </TouchableOpacity>
@@ -176,73 +188,46 @@ const Dashboard = () => {
           const isSelected = selectedHabitId === item.id;
 
           return (
-            <TouchableOpacity onPress={() => setSelectedHabitId(s => (s === item.id ? null : item.id))}>
-              <View style={[styles.habitBox, isCompleted && styles.habitBoxCompleted]}>
+            <View style={[styles.habitBox, isCompleted && styles.habitBoxCompleted]}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <TouchableOpacity
                   style={[styles.circle, isCompleted && styles.circleFilled]}
                   onPress={() => handleCirclePress(item.id)}
                 />
-                <Text style={styles.habitName}>{item.name}</Text>
-                <Text style={styles.habitDays}>Days: {item.days.join(', ')}</Text>
-
-                {isSelected && (
-                  <View style={styles.actionButtons}>
-                    <TouchableOpacity
-                      style={styles.editButton}
-                      onPress={() =>
-                        Alert.alert(
-                          'Edit Habit',
-                          'Do you want to edit this habit?',
-                          [
-                            { text: 'Cancel', style: 'cancel' },
-                            {
-                              text: 'OK',
-                              onPress: () => {
-                                setEditingHabit(item);
-                                navigation.navigate('AddHabbit');
-                              },
-                            },
-                          ],
-                          { cancelable: true }
-                        )
-                      }
-                    >
-                      <Text style={styles.actionText}>Edit</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.deleteButton}
-                      onPress={() =>
-                        Alert.alert(
-                          'Delete Habit',
-                          'Are you sure you want to delete this habit?',
-                          [
-                            { text: 'Cancel', style: 'cancel' },
-                            { text: 'Delete', style: 'destructive', onPress: () => deleteHabit(item.id) },
-                          ],
-                          { cancelable: true }
-                        )
-                      }
-                    >
-                      <Text style={styles.actionText}>Delete</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                )}
+                <TouchableOpacity
+                  onPress={() => setSelectedHabitId(s => (s === item.id ? null : item.id))}
+                  style={{ marginLeft: 12, flex: 1 }}
+                  activeOpacity={0.6}
+                >
+                  <Text style={styles.habitName}>{item.name}</Text>
+                  <Text style={styles.habitDays}>Days: {item.days.join(', ')}</Text>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
+
+              {isSelected && (
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => {
+                    deleteHabit(item.id);
+                    setSelectedHabitId(null);
+                  }}
+                >
+                  <Text style={styles.actionText}>Delete</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           );
         }}
       />
+
       <BottomNavBar
-        onHome={handleHome}
-        onDashboard={handleDashboard}
-        onAdd={handleAdd}
-        onProgress={handleProgress}
-        onLogout={handleLogout}
+        onHome={() => navigation.navigate('Home')}
+        onDashboard={() => navigation.navigate('Dashboard')}
+        onAdd={() => navigation.navigate('AddHabbit')}
+        onProgress={() => navigation.navigate('AnalyticsScreen')}
+        onLogout={() => navigation.navigate('Home')}
       />
     </View>
-
   );
 };
 
@@ -252,20 +237,25 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#f9f6f3',
   },
-
+  headerContainer: {
+    marginTop: 40,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  headerText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#6F2E0E',
+    letterSpacing: 1,
+  },
   calendarContainer: {
     borderWidth: 1,
-    marginTop: 50,
+    marginTop: 10,
     marginBottom: 20,
     borderColor: '#d6c7b5',
     borderRadius: 12,
     padding: 12,
     backgroundColor: '#fffefc',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
-    elevation: 1,
   },
   calendarHeader: {
     flexDirection: 'row',
@@ -338,102 +328,39 @@ const styles = StyleSheet.create({
     borderColor: '#d6c7b5',
     borderWidth: 1,
     backgroundColor: '#fffefc',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
-    elevation: 1,
   },
   habitBoxCompleted: {
-    backgroundColor: '#e0d2c1',
+    backgroundColor: '#e8e1d5',
   },
   circle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#333',
-    marginBottom: 4,
+    borderColor: '#c2a77c',
   },
   circleFilled: {
     backgroundColor: '#c2a77c',
   },
   habitName: {
-    fontWeight: 'bold',
     fontSize: 16,
+    fontWeight: 'bold',
   },
   habitDays: {
-    fontSize: 12,
-    color: '#666',
+    color: '#555',
   },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 8,
+  deleteButton: {
+    marginTop: 10,
+    alignSelf: 'flex-end',
+    backgroundColor: '#d9534f',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 6,
   },
-editButton: {
-  marginRight: 10,
-  borderColor: '#e0d2c1',
-  borderWidth: 2,
-  padding: 5,
-  borderRadius: 4,
-  backgroundColor: 'white',
-  color: '#e0d2c1',
-  width: 80,
-  height: 35,
-  textAlign: 'center',
-  justifyContent: 'center',
-  alignItems: 'center',
-  display: 'flex',
-},
-
-deleteButton: {
-  borderColor: '#e0d2c1',
-  borderWidth: 2,
-  padding: 5,
-  borderRadius: 4,
-  backgroundColor: 'white',
-  color: '#e0d2c1',
-  width: 80,
-  height: 35,
-  textAlign: 'center',
-  justifyContent: 'center',
-  alignItems: 'center',
-  display: 'flex',
-},
-
-
-actionText: {
-  color: '#007BFF',
-}
-,
-  addButtonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  addButton: {
-    backgroundColor: '#f5c58b', 
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 25,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 3,
-  },
-
-  addButtonText: {
-    color: '#000',
+  actionText: {
+    color: '#fff',
     fontWeight: 'bold',
-    fontSize: 16,
   },
-
 });
 
 export default Dashboard;
