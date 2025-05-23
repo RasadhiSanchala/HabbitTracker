@@ -69,7 +69,7 @@ const Dashboard = () => {
   const handleHome = () => navigation.navigate('Home');
   const handleDashboard = () => navigation.navigate('Dashboard');
   const handleAdd = () => navigation.navigate('AddHabbit');
-  const handleProgress = () => navigation.navigate('Home');
+  const handleProgress = () => navigation.navigate('AnalyticsScreen');
   const handleLogout = () => {
     navigation.navigate('Home'); 
   };
