@@ -1,155 +1,261 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import { useHabit } from '../context/HabitContext';
-import { getPastDates, getPastWeeks, getPastMonths } from '../utils/DateUtils';
+import {
+  getPastDates,
+  getPastWeeks,
+  getPastMonths,
+} from '../utils/DateUtils';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation';
+import BottomNavBar from '../components/BottomNavBar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+type ViewMode = 'daily' | 'weekly' | 'monthly';
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const AnalyticsScreen = () => {
+  const navigation = useNavigation<NavigationProp>();
   const { habits, completedHabits } = useHabit();
-  const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+  const [viewMode, setViewMode] = useState<ViewMode>('daily');
+  const [selectedIndex, setSelectedIndex] = useState(0); // 0 is latest
 
-  const calculateStats = (dates: string[]) => {
-    return dates.map(date => {
-      const completed = completedHabits[date] || [];
-      const total = habits.length;
-      const done = completed.length;
-      const pending = total - done;
-      const percent = total > 0 ? Math.round((done / total) * 100) : 0;
-      return { date, percent, done, pending, total };
-    });
+  const getLabels = (): string[] => {
+    if (viewMode === 'daily') return getPastDates(5).reverse();
+    if (viewMode === 'weekly') return getPastWeeks(5).reverse();
+    return getPastMonths(5).reverse();
   };
 
-  const renderBarChart = (stats: any[]) => {
-    return (
-      <View style={styles.chartContainer}>
-        {stats.map((stat, index) => (
-          <View key={index} style={styles.chartBarWrapper}>
-            <Text style={styles.chartLabel}>{stat.date}</Text>
-            <View style={styles.barBackground}>
-              <View style={[styles.barFill, { height: `${stat.percent}%` }]} />
-            </View>
-            <Text style={styles.percentText}>{stat.percent}%</Text>
-          </View>
-        ))}
-      </View>
-    );
+  const getSummary = (key: string) => {
+    const completed = completedHabits[key] || [];
+    const total = habits.length;
+    const pending = total - completed.length;
+
+    return {
+      total,
+      completed: completed.length,
+      pending,
+      percentage: total ? Math.round((completed.length / total) * 100) : 0,
+    };
   };
 
-  const renderSummary = (stat: any) => (
-    <View style={styles.summaryBox}>
-      <Text style={styles.summaryText}>Total Habits: {stat.total}</Text>
-      <Text style={styles.summaryText}>Completed: {stat.done}</Text>
-      <Text style={styles.summaryText}>Pending: {stat.pending}</Text>
-    </View>
-  );
+  const labels = getLabels();
+  const selectedLabel = labels[selectedIndex];
+  const { total, completed, pending, percentage } = getSummary(selectedLabel);
 
-  const dates =
-    activeTab === 'daily'
-      ? getPastDates(5)
-      : activeTab === 'weekly'
-      ? getPastWeeks(5)
-      : getPastMonths(5);
+  const handleHome = () => navigation.navigate('Home');
+  const handleDashboard = () => navigation.navigate('Dashboard');
+  const handleAdd = () => navigation.navigate('AddHabbit');
+  const handleProgress = () => navigation.navigate('Home');
 
-  const stats = calculateStats(dates);
+  const handleLogout = async () => {
+  try {
+    await AsyncStorage.clear();
+    navigation.navigate('SignIn'); 
+  } catch (error) {
+    console.error('Failed to clear AsyncStorage:', error);
+  }
+};
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.tabContainer}>
-        {['daily', 'weekly', 'monthly'].map(type => (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Progress</Text>
+      </View>
+
+
+      <View style={styles.tabRow}>
+        {['daily', 'weekly', 'monthly'].map((mode) => (
           <TouchableOpacity
-            key={type}
-            onPress={() => setActiveTab(type as any)}
+            key={mode}
             style={[
-              styles.tabButton,
-              activeTab === type && styles.activeTab,
+              styles.tab,
+              viewMode === mode && styles.activeTab,
             ]}
+            onPress={() => {
+              setViewMode(mode as ViewMode);
+              setSelectedIndex(0); // reset index when mode changes
+            }}
           >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === type && styles.activeTabText,
-              ]}
-            >
-              {type.toUpperCase()}
+            <Text style={[
+              styles.tabText,
+              viewMode === mode && styles.activeTabText
+            ]}>
+              {mode.charAt(0).toUpperCase() + mode.slice(1)}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {renderBarChart(stats)}
-      {stats[0] && renderSummary(stats[0])}
-    </ScrollView>
+      {/* Chart Bars */}
+      <View style={styles.chartRow}>
+        {labels.map((label, index) => {
+          const { percentage } = getSummary(label);
+          return (
+            <TouchableOpacity
+              key={label}
+              onPress={() => setSelectedIndex(index)}
+              style={[
+                styles.chartItem,
+                selectedIndex === index && styles.selectedChartItem,
+              ]}
+            >
+              <View style={[styles.bar, { height: `${percentage}%` }]} />
+              <Text style={styles.chartLabel}>{label.slice(-5)}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* Stats Box */}
+      <View style={styles.statsBox}>
+        <Text style={styles.statsTitle}>Stats for: {selectedLabel}</Text>
+
+        <View style={styles.statsField}>
+          <Text style={styles.fieldLabel}>Total Habits</Text>
+          <Text style={styles.fieldValue}>{total}</Text>
+        </View>
+        <View style={styles.statsField}>
+          <Text style={styles.fieldLabel}>Completed</Text>
+          <Text style={styles.fieldValue}>{completed}</Text>
+        </View>
+        <View style={styles.statsField}>
+          <Text style={styles.fieldLabel}>Pending</Text>
+          <Text style={styles.fieldValue}>{pending}</Text>
+        </View>
+        <View style={styles.statsField}>
+          <Text style={styles.fieldLabel}>Completion</Text>
+          <Text style={styles.fieldValue}>{percentage}%</Text>
+        </View>
+      </View>
+
+      {/* Bottom Navigation Bar */}
+      <BottomNavBar
+        onHome={handleHome}
+        onDashboard={handleDashboard}
+        onAdd={handleAdd}
+        onProgress={handleProgress}
+        onLogout={handleLogout}
+      />
+    </View>
   );
 };
+
+const brown = '#6B4F4F';
+const lightBrown = '#A97C7C';
+const background = '#FBEDE2';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#F4EDE4', // light brown
+    padding: 16,
+    backgroundColor: '#f9f6f3',
+    justifyContent: 'space-between',
   },
-  tabContainer: {
+  headerContainer: {
+    marginTop: 40,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  headerText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: brown,
+    letterSpacing: 0.5,
+    textAlign: 'center',
+  },
+  tabRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 20,
+    marginBottom: 15,
+    marginTop: 10,
   },
-  tabButton: {
-    padding: 10,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+  tab: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: lightBrown,
   },
   activeTab: {
-    borderBottomColor: '#8B5E3C',
+    backgroundColor: brown,
   },
   tabText: {
-    fontSize: 16,
-    color: '#5C4033',
+    color: '#fff',
+    fontWeight: '600',
   },
   activeTabText: {
-    fontWeight: 'bold',
-    color: '#8B5E3C',
+    color: '#fff',
   },
-  chartContainer: {
+  chartRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-end',
     marginBottom: 20,
+    height: 150,
   },
-  chartBarWrapper: {
+  chartItem: {
     alignItems: 'center',
-    flex: 1,
-    marginHorizontal: 5,
+    width: '18%',
+    backgroundColor: '#e5d3d3',
+    borderRadius: 10,
+    paddingTop: 5,
+  },
+  selectedChartItem: {
+    backgroundColor: brown,
+  },
+  bar: {
+    width: 20,
+    backgroundColor: '#fff',
+    borderRadius: 5,
   },
   chartLabel: {
     fontSize: 12,
-    marginBottom: 4,
-    color: '#6B4F3B',
+    color: '#333',
+    marginTop: 5,
   },
-  barBackground: {
-    width: 20,
-    height: 100,
-    backgroundColor: '#D3C0B0',
-    borderRadius: 5,
-    justifyContent: 'flex-end',
+  statsBox: {
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#fff0e6',
+    elevation: 2,
+    marginBottom: 10,
   },
-  barFill: {
-    width: '100%',
-    backgroundColor: '#A97142',
-    borderRadius: 5,
-  },
-  percentText: {
-    marginTop: 4,
-    fontSize: 12,
-    color: '#5C4033',
-  },
-  summaryBox: {
-    padding: 15,
-    backgroundColor: '#EADAC8',
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  summaryText: {
+  statsTitle: {
+    fontWeight: 'bold',
     fontSize: 16,
-    color: '#4B3621',
-    marginBottom: 5,
+    marginBottom: 16,
+    color: brown,
+    textAlign: 'center',
+  },
+  statsField: {
+    backgroundColor: lightBrown,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 12,
+    alignItems: 'center',
+    shadowColor: brown,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    color: '#fff',
+    marginBottom: 6,
+    fontWeight: '600',
+  },
+  fieldValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
   },
 });
 
