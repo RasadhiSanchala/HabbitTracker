@@ -2,7 +2,7 @@ import { Text, View, StyleSheet, ImageBackground, TouchableOpacity } from 'react
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
-import BottomNavBar from '../components/BottomNavBar';
+
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -11,13 +11,7 @@ const buttonColor = '#6F2E0E';
 function Home() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
-  const handleHome = () => navigation.navigate('Home');
-  const handleDashboard = () => navigation.navigate('Dashboard');
-  const handleAdd = () => navigation.navigate('AddHabbit');
-  const handleProgress = () => navigation.navigate('Home');
-  const handleLogout = () => {
-    navigation.navigate('Home');
-  };
+
 
   return (
     <ImageBackground
@@ -27,7 +21,7 @@ function Home() {
     >
       <View style={styles.container}>
         <View style={styles.headingContainer}>
-          <Text style={styles.heading}>HabitDone</Text>
+          
         </View>
 
         <View style={styles.contentBox}>
@@ -71,7 +65,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 300,
+    marginLeft:-30,
+    marginTop: 200,
     padding: 20,
   },
   subheading: {
