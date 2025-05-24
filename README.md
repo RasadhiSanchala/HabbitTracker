@@ -1,97 +1,134 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+#Habit Tracker – Build Good Habits, Break Bad Ones!
 
-# Getting Started
+##Project Overview
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+Habit Tracker is a mobile application built with React Native and TypeScript that helps users create, track, and maintain daily or weekly habits. The app allows users to register/login locally, add habits, mark them as completed, and monitor their progress over time. All data is stored locally using AsyncStorage, ensuring offline-first functionality.
 
-## Step 1: Start Metro
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+##Features
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+###Core Features
 
-```sh
-# Using npm
-npm start
+####Registration / Login (Local Only)
 
-# OR using Yarn
-yarn start
+User registration with Name, Email, and Password (no real authentication).
+
+User details saved securely in AsyncStorage.
+
+####Create Habit Screen
+
+Add new habits with:
+
+Habit Name
+
+Frequency (Daily or Weekly)
+
+Habits saved in AsyncStorage.
+
+####Dashboard
+
+Displays all added habits using FlatList.
+
+Shows habit name and completion status for today.
+
+Button to mark habits as completed.
+
+Filter habits by:
+
+All Habits
+
+Pending Habits
+
+Completed Habits
+
+####Progress Tracking Screen
+
+Displays percentage of habits completed.
+
+daily,weekly,monthly progress tracking.
+
+Simple charts or textual progress indicators.
+
+####Logout
+
+Clears AsyncStorage.
+
+Navigates back to the Login screen.
+
+Bonus Features
+Calendar view showing habit streaks.
+
+Animations when marking a habit complete.
+
+Offline-first support (fully functional without internet).
+
+
+
+##Tech Stack & Tools
+
+React Native CLI – Core development framework.
+
+TypeScript – Static typing for props and state management.
+
+React Navigation – Stack and Tab navigation.
+
+AsyncStorage – Local data persistence.
+
+useContext API – Optional state management.
+
+Additional Libraries – As needed for UI components and animations.
+
+Folder Structure
 ```
+src/
+├── assets/        # Images, fonts, and static files
+├── components/    # Reusable UI components (buttons, cards, etc.)
+├── context/       # Context API files for global state management
+├── navigation/    # Navigation setup (stacks, tabs, navigators)
+├── screens/       # App screens (Login, Dashboard, AddHabit, etc.)
+├── styles/        # Shared style files (colors, themes, etc.)
+├── types/         # TypeScript type definitions and interfaces
+├── utils/         # Utility/helper functions (date helpers, storage, etc.)
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
 ```
+Setup Instructions
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+1) Clone the repository
 ```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
+git clone https://github.com/RasadhiSanchala/HabbitTracker.git
+cd habit-tracker
 ```
+2) Install dependencies
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+`npm install`
 
-```sh
-# Using npm
-npm run ios
+3) Run the app
 
-# OR using Yarn
-yarn ios
-```
+For Android:
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+`npx react-native run-android`
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+4) start Metro bundler:
 
-## Step 3: Modify your app
+`npx react-native start`
 
-Now that you have successfully run the app, let's make changes!
+##How to Use
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+###Register/Login
+Launch the app and register with your name, email, and password. If already registered, login will auto-fill.
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+###Add New Habit
+Navigate to the Add Habit screen to create new habits. Choose habit name and frequency (daily/weekly).
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+###Track Habits
+View your habit list on the Dashboard. Mark habits as completed daily.
 
-## Congratulations! :tada:
+###View Progress
+Check the Analytics screen to see your daily and weekly progress with simple charts.
 
-You've successfully run and modified your React Native App. :partying_face:
+###Logout
+Use the logout button to clear your data and return to the login screen.
 
-### Now what?
+Demo Video
+[Attach your demo video link here]
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
