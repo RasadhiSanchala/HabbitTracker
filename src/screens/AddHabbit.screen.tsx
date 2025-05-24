@@ -16,6 +16,7 @@ import { RootStackParamList } from '../types/navigation';
 
 import { useHabit } from '../context/HabitContext';
 import BottomNavBar from '../components/BottomNavBar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type AddHabitNavProp = NativeStackNavigationProp<RootStackParamList, 'AddHabbit'>;
 
@@ -30,8 +31,13 @@ export default function AddHabbit() {
   const handleDashboard = () => navigation.navigate('Dashboard');
   const handleAdd = () => navigation.navigate('AddHabbit');
  const handleProgress = () => navigation.navigate('AnalyticsScreen');
-  const handleLogout = () => {
-    navigation.navigate('Home');
+ const handleLogout = async () => {
+    try {
+      await AsyncStorage.clear();
+      navigation.navigate('SignIn'); 
+    } catch (error) {
+      console.error('Failed to clear AsyncStorage:', error);
+    }
   };
 
   useEffect(() => {
@@ -200,7 +206,7 @@ const styles = StyleSheet.create({
   daysBoxContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10, // React Native doesn't support gap, so margin is used below
+    gap: 10, 
     marginBottom: 25,
   },
   dayBox: {
