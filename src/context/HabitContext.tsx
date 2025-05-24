@@ -13,7 +13,7 @@ type Habit = {
 };
 
 type CompletedHabitsType = {
-  [date: string]: string[]; // e.g. "2025-05-22": ["habit1", "habit2"]
+  [date: string]: string[]; 
 };
 
 type HabitContextType = {
@@ -21,7 +21,7 @@ type HabitContextType = {
   addHabit: (habit: Habit) => void;
   updateHabit: (updatedHabit: Habit) => void;
   completedHabits: CompletedHabitsType;
-  toggleHabitComplete: (id: string, date: string) => void;  // updated signature here
+  toggleHabitComplete: (id: string, date: string) => void;  
   deleteHabit: (id: string) => void;
   setEditingHabit: (habit: Habit | null) => void;
   editingHabit: Habit | null;
@@ -54,7 +54,7 @@ export const HabitProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const getToday = () => {
-    return new Date().toISOString().split('T')[0]; // format: "YYYY-MM-DD"
+    return new Date().toISOString().split('T')[0];
   };
 
   const addHabit = (habit: Habit) => {
@@ -72,7 +72,6 @@ export const HabitProvider = ({ children }: { children: React.ReactNode }) => {
     setEditingHabit(null);
   };
 
-  // Updated toggleHabitComplete to accept date parameter
   const toggleHabitComplete = (id: string, date: string) => {
     setCompletedHabits((prev) => {
       const todayCompleted = prev[date] || [];
