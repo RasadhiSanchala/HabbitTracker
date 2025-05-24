@@ -1,4 +1,4 @@
-# Habit Tracker – Build Good Habits, Break Bad Ones!
+# HabitDone - Habit Tracker – Build Good Habits, Break Bad Ones!
 
 ## Project Overview
 
@@ -96,7 +96,7 @@ Setup Instructions
 1) Clone the repository
 ```
 git clone https://github.com/RasadhiSanchala/HabbitTracker.git
-cd habit-tracker
+cd HabbitTracker
 ```
 2) Install dependencies
 
