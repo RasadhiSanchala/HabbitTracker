@@ -17,7 +17,7 @@ function SignUp() {
   const [password, setPassword] = useState('');
 
   const handleSignUp = async () => {
-    if (!name || !email || !gender || !age || !password) {
+    if (!name || !email ||!age || !password) {
       Alert.alert('All fields are required!');
       return;
     }
@@ -73,14 +73,6 @@ function SignUp() {
           textContentType="emailAddress"
         />
 
-        <Text style={styles.label}>Gender</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={setGender}
-          placeholder="Enter your gender"
-          placeholderTextColor="#999"
-          autoCapitalize="words"
-        />
 
         <Text style={styles.label}>Age</Text>
         <TextInput
