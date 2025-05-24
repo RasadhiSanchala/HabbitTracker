@@ -24,7 +24,7 @@ const AnalyticsScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { habits, completedHabits } = useHabit();
   const [viewMode, setViewMode] = useState<ViewMode>('daily');
-  const [selectedIndex, setSelectedIndex] = useState(0); // 0 is latest
+  const [selectedIndex, setSelectedIndex] = useState(0); 
 
   const getLabels = (): string[] => {
     if (viewMode === 'daily') return getPastDates(5).reverse();
@@ -32,17 +32,153 @@ const AnalyticsScreen = () => {
     return getPastMonths(5).reverse();
   };
 
-  const getSummary = (key: string) => {
-    const completed = completedHabits[key] || [];
-    const total = habits.length;
-    const pending = total - completed.length;
+  
+  const getDayName = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { weekday: 'long' });
+  };
 
-    return {
-      total,
-      completed: completed.length,
-      pending,
-      percentage: total ? Math.round((completed.length / total) * 100) : 0,
-    };
+
+  const getDatesInWeek = (weekStartDate: string): string[] => {
+    const dates: string[] = [];
+    const startDate = new Date(weekStartDate);
+    
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(startDate.getDate() + i);
+      dates.push(currentDate.toISOString().split('T')[0]);
+    }
+    return dates;
+  };
+
+  
+  const getDatesInMonth = (monthStartDate: string): string[] => {
+    const dates: string[] = [];
+    const startDate = new Date(monthStartDate);
+    const year = startDate.getFullYear();
+    const month = startDate.getMonth();
+    
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      dates.push(date.toISOString().split('T')[0]);
+    }
+    return dates;
+  };
+
+  
+  const getFilteredHabits = (key: string) => {
+    if (viewMode === 'daily') {
+      
+      const dayName = getDayName(key);
+      return habits.filter(habit => habit.days.includes(dayName));
+    } else if (viewMode === 'weekly') {
+   
+      const weekDates = getDatesInWeek(key);
+      const weekHabits = new Set<string>();
+      
+      weekDates.forEach(date => {
+        const dayName = getDayName(date);
+        habits.forEach(habit => {
+          if (habit.days.includes(dayName)) {
+            weekHabits.add(habit.id);
+          }
+        });
+      });
+      
+      return habits.filter(habit => weekHabits.has(habit.id));
+    } else {
+   
+      const monthDates = getDatesInMonth(key);
+      const monthHabits = new Set<string>();
+      
+      monthDates.forEach(date => {
+        const dayName = getDayName(date);
+        habits.forEach(habit => {
+          if (habit.days.includes(dayName)) {
+            monthHabits.add(habit.id);
+          }
+        });
+      });
+      
+      return habits.filter(habit => monthHabits.has(habit.id));
+    }
+  };
+
+  const getSummary = (key: string) => {
+    const filteredHabits = getFilteredHabits(key);
+    
+    if (viewMode === 'daily') {
+    
+      const completed = completedHabits[key] || [];
+      const completedFilteredHabits = completed.filter(habitId => 
+        filteredHabits.some(habit => habit.id === habitId)
+      );
+      
+      const total = filteredHabits.length;
+      const completedCount = completedFilteredHabits.length;
+      const pending = total - completedCount;
+
+      return {
+        total,
+        completed: completedCount,
+        pending,
+        percentage: total ? Math.round((completedCount / total) * 100) : 0,
+      };
+    } else if (viewMode === 'weekly') {
+    
+      const weekDates = getDatesInWeek(key);
+      let totalExpectedCompletions = 0;
+      let actualCompletions = 0;
+      
+      weekDates.forEach(date => {
+        const dayName = getDayName(date);
+        const habitsForDay = filteredHabits.filter(habit => habit.days.includes(dayName));
+        const completedForDay = completedHabits[date] || [];
+        const completedHabitsForDay = completedForDay.filter(habitId => 
+          habitsForDay.some(habit => habit.id === habitId)
+        );
+        
+        totalExpectedCompletions += habitsForDay.length;
+        actualCompletions += completedHabitsForDay.length;
+      });
+      
+      const pending = totalExpectedCompletions - actualCompletions;
+      
+      return {
+        total: filteredHabits.length,
+        completed: actualCompletions,
+        pending: pending,
+        percentage: totalExpectedCompletions ? Math.round((actualCompletions / totalExpectedCompletions) * 100) : 0,
+      };
+    } else {
+    
+      const monthDates = getDatesInMonth(key);
+      let totalExpectedCompletions = 0;
+      let actualCompletions = 0;
+      
+      monthDates.forEach(date => {
+        const dayName = getDayName(date);
+        const habitsForDay = filteredHabits.filter(habit => habit.days.includes(dayName));
+        const completedForDay = completedHabits[date] || [];
+        const completedHabitsForDay = completedForDay.filter(habitId => 
+          habitsForDay.some(habit => habit.id === habitId)
+        );
+        
+        totalExpectedCompletions += habitsForDay.length;
+        actualCompletions += completedHabitsForDay.length;
+      });
+      
+      const pending = totalExpectedCompletions - actualCompletions;
+      
+      return {
+        total: filteredHabits.length, 
+        completed: actualCompletions,
+        pending: pending,
+        percentage: totalExpectedCompletions ? Math.round((actualCompletions / totalExpectedCompletions) * 100) : 0,
+      };
+    }
   };
 
   const labels = getLabels();
@@ -55,20 +191,19 @@ const AnalyticsScreen = () => {
   const handleProgress = () => navigation.navigate('Home');
 
   const handleLogout = async () => {
-  try {
-    await AsyncStorage.clear();
-    navigation.navigate('SignIn'); 
-  } catch (error) {
-    console.error('Failed to clear AsyncStorage:', error);
-  }
-};
+    try {
+      await AsyncStorage.clear();
+      navigation.navigate('SignIn'); 
+    } catch (error) {
+      console.error('Failed to clear AsyncStorage:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Progress</Text>
       </View>
-
 
       <View style={styles.tabRow}>
         {['daily', 'weekly', 'monthly'].map((mode) => (
@@ -80,7 +215,7 @@ const AnalyticsScreen = () => {
             ]}
             onPress={() => {
               setViewMode(mode as ViewMode);
-              setSelectedIndex(0); // reset index when mode changes
+              setSelectedIndex(0); 
             }}
           >
             <Text style={[
@@ -93,7 +228,7 @@ const AnalyticsScreen = () => {
         ))}
       </View>
 
-      {/* Chart Bars */}
+ 
       <View style={styles.chartRow}>
         {labels.map((label, index) => {
           const { percentage } = getSummary(label);
@@ -113,12 +248,14 @@ const AnalyticsScreen = () => {
         })}
       </View>
 
-      {/* Stats Box */}
+
       <View style={styles.statsBox}>
         <Text style={styles.statsTitle}>Stats for: {selectedLabel}</Text>
 
         <View style={styles.statsField}>
-          <Text style={styles.fieldLabel}>Total Habits</Text>
+          <Text style={styles.fieldLabel}>
+            {viewMode === 'daily' ? 'Total Habits' : 'Unique Habits'}
+          </Text>
           <Text style={styles.fieldValue}>{total}</Text>
         </View>
         <View style={styles.statsField}>
@@ -135,7 +272,7 @@ const AnalyticsScreen = () => {
         </View>
       </View>
 
-      {/* Bottom Navigation Bar */}
+   
       <BottomNavBar
         onHome={handleHome}
         onDashboard={handleDashboard}
