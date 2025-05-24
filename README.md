@@ -1,21 +1,21 @@
-#Habit Tracker – Build Good Habits, Break Bad Ones!
+# Habit Tracker – Build Good Habits, Break Bad Ones!
 
-##Project Overview
+## Project Overview
 
 Habit Tracker is a mobile application built with React Native and TypeScript that helps users create, track, and maintain daily or weekly habits. The app allows users to register/login locally, add habits, mark them as completed, and monitor their progress over time. All data is stored locally using AsyncStorage, ensuring offline-first functionality.
 
 
-##Features
+## Features
 
-###Core Features
+### Core Features
 
-####Registration / Login (Local Only)
+#### Registration / Login (Local Only)
 
 User registration with Name, Email, and Password (no real authentication).
 
 User details saved securely in AsyncStorage.
 
-####Create Habit Screen
+#### Create Habit Screen
 
 Add new habits with:
 
@@ -25,7 +25,7 @@ Frequency (Daily or Weekly)
 
 Habits saved in AsyncStorage.
 
-####Dashboard
+#### Dashboard
 
 Displays all added habits using FlatList.
 
@@ -41,7 +41,7 @@ Pending Habits
 
 Completed Habits
 
-####Progress Tracking Screen
+#### Progress Tracking Screen
 
 Displays percentage of habits completed.
 
@@ -49,7 +49,7 @@ daily,weekly,monthly progress tracking.
 
 Simple charts or textual progress indicators.
 
-####Logout
+#### Logout
 
 Clears AsyncStorage.
 
@@ -64,7 +64,7 @@ Offline-first support (fully functional without internet).
 
 
 
-##Tech Stack & Tools
+## Tech Stack & Tools
 
 React Native CLI – Core development framework.
 
@@ -112,21 +112,21 @@ For Android:
 
 `npx react-native start`
 
-##How to Use
+## How to Use
 
-###Register/Login
+### Register/Login
 Launch the app and register with your name, email, and password. If already registered, login will auto-fill.
 
-###Add New Habit
+### Add New Habit
 Navigate to the Add Habit screen to create new habits. Choose habit name and frequency (daily/weekly).
 
-###Track Habits
+### Track Habits
 View your habit list on the Dashboard. Mark habits as completed daily.
 
-###View Progress
+### View Progress
 Check the Analytics screen to see your daily and weekly progress with simple charts.
 
-###Logout
+### Logout
 Use the logout button to clear your data and return to the login screen.
 
 Demo Video
